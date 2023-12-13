@@ -1,0 +1,152 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+public class RecipeOrganizer {
+
+    private List<Recipe> recipes = new ArrayList<>();
+
+    public void addRecipe(Recipe recipe) {
+        recipes.add(recipe);
+    }
+
+    public boolean editRecipe(String name, Recipe updatedRecipe) {
+        for (int i = 0; i < recipes.size(); i++) {
+            Recipe recipe = recipes.get(i);
+            if (recipe.getName().equals(name)) {
+                recipes.set(i, updatedRecipe);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean deleteRecipe(String name) {
+        Iterator<Recipe> iterator = recipes.iterator();
+        while (iterator.hasNext()) {
+            Recipe recipe = iterator.next();
+            if (recipe.getName().equals(name)) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Recipe> getRecipesByCategory(String category) {
+        List<Recipe> filteredRecipes = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            if (recipe.getCategory() != null && recipe.getCategory().equals(category)) {
+                filteredRecipes.add(recipe);
+            }
+        }
+        return filteredRecipes;
+    }
+
+    public List<Recipe> searchRecipes(String query) {
+        List<Recipe> filteredRecipes = new ArrayList<>();
+        for (Recipe recipe : recipes) {
+            if (recipe.getName().toLowerCase().contains(query.toLowerCase()) ||
+                    (recipe.getIngredients() != null && recipe.getIngredients().toString().toLowerCase().contains(query.toLowerCase()))) {
+                filteredRecipes.add(recipe);
+            }
+        }
+        return filteredRecipes;
+    }
+
+    public void listRecipes() {
+        for (Recipe recipe : recipes) {
+            System.out.println(recipe);
+        }
+    }
+
+    public void exportRecipes(String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Recipe recipe : recipes) {
+                writer.write(recipe.toString());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        RecipeOrganizer organizer = new RecipeOrganizer();
+
+        // Example usage
+
+        Recipe recipe = new Recipe("Scrambled Eggs",
+                Arrays.asList("2 eggs", "1 tablespoon milk", "Salt and pepper to taste"),
+                Arrays.asList("Whisk together eggs and milk.", "Add salt and pepper.",
+                        "Cook over medium heat, stirring frequently, until eggs are set."),
+                "Breakfast");
+
+        organizer.addRecipe(recipe);
+
+        recipe = new Recipe("Pancakes",
+                Arrays.asList("1 cup flour", "2 tablespoons sugar", "1 teaspoon baking powder",
+                        "1/2 teaspoon salt", "1 egg", "1 cup milk"),
+                Arrays.asList("Whisk together dry ingredients.", "Whisk in wet ingredients.",
+                        "Cook on a lightly greased griddle until golden brown."),
+                "Breakfast");
+
+        organizer.addRecipe(recipe);
+
+        organizer.listRecipes();
+
+        System.out.println("\nSearching for breakfast recipes:");
+        List<Recipe> breakfastRecipes = organizer.getRecipesByCategory("Breakfast");
+
+        for (Recipe r : breakfastRecipes) {
+            System.out.println(r);
+        }
+
+        System.out.println("\nExporting recipes to recipes.txt");
+        organizer.exportRecipes("recipes.txt");
+    }
+}
+
+class Recipe {
+    private String name;
+    private List<String> ingredients;
+    private List<String> instructions;
+    private String category;
+
+    public Recipe(String name, List<String> ingredients, List<String> instructions, String category) {
+        this.name = name;
+        this.ingredients = ingredients;
+        this.instructions = instructions;
+        this.category = category;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getIngredients() {
+        return ingredients;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    @Override
+    public String toString() {
+        return "Recipe{" +
+                "name='" + name + '\'' +
+                ", ingredients=" + ingredients +
+                ", instructions=" + instructions +
+                ", category='" + category + '\'' +
+                '}';
+    }
+}
